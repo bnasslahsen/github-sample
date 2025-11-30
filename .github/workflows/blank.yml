@@ -1,0 +1,25 @@
+name: hello-world
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for checkout
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  fetch-secret-from-conjur:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Import Secrets using CyberArk Conjur Secret Fetcher
+        uses: cyberark/conjur-action@v2.0.12
+        with:
+          url: ${{ vars.CONJUR_URL }}
+          account: ${{ vars.CONJUR_ACCOUNT }}
+          authn_id: ${{ vars.CONJUR_AUTHN_ID }}
+          secrets: data/vault/demo-github/github-app01/username|SECRET1;data/vault/demo-github/github-app01/password|SECRET2
+      - name : Echo USERNAME
+        run: echo $SECRET1 | sed 's/./& /g'
+      - name : Echo PASSWORD
+        run: echo $SECRET2 | sed 's/./& /g'
